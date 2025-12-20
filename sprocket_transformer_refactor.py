@@ -198,18 +198,14 @@ class SPROCKETTransformer(BaseCollectionTransformer):
 
         # The only use of n_timepoints is to set the maximum dilation
         self.fit_min_length_ = X[0].shape[1]
-        before_kernels_time = time.time()
         self.kernels = _generate_kernels(
             self.fit_min_length_, self.n_kernels, n_channels, self._random_state
         )
-        after_kernels_time = time.time()
         #print('kernels_time', after_kernels_time-before_kernels_time)
         '''for i in range(0, len(self.kernels)):
             print(i, self.kernels[i])'''
         #exit()
-        all_start = time.time()
         self.kernel_points = _get_prototype_points(np.array(X, dtype=np.float32), y, self.kernels, self.proto_per_kernel, self.window_frac, self.stratified_sampling)
-        all_end = time.time()
         #print('prototype_time', all_end-all_start)
         return self
 
@@ -233,14 +229,7 @@ class SPROCKETTransformer(BaseCollectionTransformer):
         prev_threads = get_num_threads()
         set_num_threads(self._n_jobs)
         X = np.asarray(X)
-        before_proto_transform = time.time()
         X_ = apply_kernels_proto(X, y, self.kernels, self.kernel_points, self.dist_id, self.window_frac)
-        #print(univariate_apply_kernel_return_convolved_premade_offsets.inspect_types())
-        #print(_apply_proto_kernel_univariate_premade_offsets.inspect_types())
-        after_proto_transform = time.time()
-        #print('proto_transform time', after_proto_transform-before_proto_transform)
-        #exit()
-        #X_ = _apply_kernels_proto(X, self.kernels, self.kernel_points, self.dist_id, self.window_frac)
         set_num_threads(prev_threads)
         return X_
 
@@ -432,7 +421,6 @@ def _get_prototype_points(X, y, kernels, proto_per_kernel=4.0, window_frac=.2, s
     """
     Select prototypical points per kernel by convolving sampled inputs.
     """
-    #start_1 = time.time()
     weights, lengths, biases, dilations, paddings, n_channel_indices, channel_indices = kernels
     
     #n_cases = X.shape[0]
